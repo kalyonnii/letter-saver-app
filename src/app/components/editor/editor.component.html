@@ -1,0 +1,25 @@
+<div class="editor-container">
+  <div class="toolbar">
+    <input
+      [(ngModel)]="letterTitle"
+      placeholder="Letter Title"
+      class="title-input"
+    />
+    <div class="actions">
+      <button
+        (click)="saveLetter()"
+        [disabled]="!letterTitle || !letterContent"
+      >
+        Save Draft
+      </button>
+      <button (click)="saveLetterToDrive()" [disabled]="!lastSavedLetterId || loading">
+        Save to Google Drive
+      </button>
+    </div>
+  </div>
+  <textarea
+    [(ngModel)]="letterContent"
+    placeholder="Write your letter here..."
+    class="letter-textarea"
+  ></textarea>
+</div>

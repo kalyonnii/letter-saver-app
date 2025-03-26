@@ -1,0 +1,86 @@
+<div class="dashboard-container">
+  <div class="header">
+    <div class="welcome-section">
+      <h1>Welcome, {{ userName }}</h1>
+      <p class="subtitle">Manage your letters with ease</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary" (click)="navigateToEditor()">
+        <i class="fa-solid fa-plus"></i> New Letter
+      </button>
+      <button class="btn btn-logout" (click)="logout()">
+        <i class="fa-solid fa-right-from-bracket"></i>Logout
+      </button>
+    </div>
+  </div>
+
+  <div class="letters-section">
+    <div class="section-header">
+      <h2>Your Letters</h2>
+      <div class="filter-options">
+        <button
+          [class.active]="currentFilter === 'all'"
+          (click)="filterLetters('all')"
+        >
+          All
+        </button>
+        <button
+          [class.active]="currentFilter === 'draft'"
+          (click)="filterLetters('draft')"
+        >
+          Drafts
+        </button>
+        <button
+          [class.active]="currentFilter === 'saved'"
+          (click)="filterLetters('saved')"
+        >
+          Saved
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="filteredLetters.length === 0" class="no-letters">
+      <i class="fa-solid fa-box-open"></i>
+      <p>No letters found</p>
+    </div>
+
+    <div
+      *ngFor="let letter of filteredLetters"
+      class="letter-card"
+      [class.draft]="letter.status === 'draft'"
+      [class.saved]="letter.status === 'saved'"
+    >
+      <div class="letter-header">
+        <div class="letter-title-status">
+          <h3>{{ letter.title }}</h3>
+          <span
+            class="status-badge"
+            [class.draft-badge]="letter.status === 'draft'"
+            [class.saved-badge]="letter.status === 'saved'"
+          >
+            {{ letter.status }}
+          </span>
+        </div>
+        <div class="letter-actions">
+          <button class="btn btn-view" (click)="viewLetter(letter)">
+            <i class="fa-solid fa-eye"></i> View
+          </button>
+          <button class="btn btn-edit" (click)="editLetter(letter)">
+            <i class="fa-solid fa-pen-to-square"></i> Edit
+          </button>
+          <button class="btn btn-delete" (click)="deleteLetter(letter._id)">
+            <i class="fa-solid fa-trash"></i> Delete
+          </button>
+        </div>
+      </div>
+      <div class="letter-details">
+        <p>Saved: {{ letter.savedAt | date : "medium" }}</p>
+        <div class="drive-status">
+          <span *ngIf="letter.driveFileId" class="drive-badge">
+            <i class="fa-brands fa-google-drive"></i> Google Drive
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

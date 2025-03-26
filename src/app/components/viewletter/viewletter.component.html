@@ -1,0 +1,35 @@
+<div class="letter-view-container" *ngIf="letter">
+  <div class="letter-view-header">
+    <div class="header-actions">
+      <button class="btn btn-secondary" (click)="goToDashboard()">
+        <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+      </button>
+      <button class="btn btn-primary" (click)="editLetter()">
+        <i class="fa-solid fa-pen-to-square"></i> Edit Letter
+      </button>
+    </div>
+  </div>
+
+  <div class="letter-content">
+    <div class="letter-metadata">
+      <h1>{{ letter.title }}</h1>
+      <div class="metadata-details">
+        <span class="status-badge"
+              [class.draft-badge]="letter.status === 'draft'"
+              [class.saved-badge]="letter.status === 'saved'">
+          {{ letter.status }}
+        </span>
+        <span class="saved-date">
+          Saved: {{ letter.savedAt | date: 'medium' }}
+        </span>
+        <span *ngIf="letter.driveFileId" class="drive-badge">
+          <i class="fa-brands fa-google-drive"></i> Google Drive
+        </span>
+      </div>
+    </div>
+
+    <div class="letter-body">
+      <pre>{{ letter.content }}</pre>
+    </div>
+  </div>
+</div>
