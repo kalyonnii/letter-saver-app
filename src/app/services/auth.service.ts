@@ -1,67 +1,62 @@
-// src/app/services/auth.service.ts
+// services/auth.service.ts
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { BehaviorSubject, Observable, of, throwError } from "rxjs";
+import { BehaviorSubject, Observable, of } from "rxjs";
 import { catchError, map, tap } from "rxjs/operators";
 import { environment } from "../../environments/environment";
 
-// User interface for type safety
+// User interface for better type-checking
 export interface User {
   id: string;
   name: string;
   email: string;
-  accessToken?: string;
 }
 
 @Injectable({
   providedIn: "root"
 })
 export class AuthService {
-  // BehaviorSubject to track current user state
   private currentUserSubject = new BehaviorSubject<User | null>(null);
-
-  // Observable for components to subscribe to user state
   currentUser$ = this.currentUserSubject.asObservable();
 
-  // Base API URL from environment
   private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {
-    // Check if user is already authenticated on service initialization
+    // Ensure the session is checked when service initializes
     this.checkAuthentication();
   }
 
-  // Login method (redirects to Google OAuth)
+  // Initiate Google Login
   login(): void {
-    // Redirect to backend Google OAuth endpoint
     window.location.href = `${this.apiUrl}/auth/google`;
   }
 
-  // Logout method
+  // Logout and clear user session
   logout(): Observable<any> {
     return this.http.get(`${this.apiUrl}/api/user/logout`).pipe(
       tap(() => {
-        console.log("api logout calling")
-        // Clear user on successful logout
+        console.log("Logging out user");
         this.currentUserSubject.next(null);
-        // Redirect to login page
-        window.location.href = '/login';
+        window.location.href = "/login";
       }),
-      catchError(this.handleError<any>('logout'))
+      catchError(err => {
+        console.error("Logout error:", err);
+        return of(null);
+      })
     );
   }
-  // logout(): Observable<any> {
-  //   return this.http.get(`${this.apiUrl}/api/user/logout`);
-  // }
 
-  // Check authentication status
+  // Check if the user is authenticated (on app load)
   checkAuthentication(): void {
     this.http
       .get<User>(`${this.apiUrl}/api/user`)
       .pipe(
         tap(user => {
           if (user) {
+            console.log("Authenticated User:", user);
             this.currentUserSubject.next(user);
+          } else {
+            this.currentUserSubject.next(null);
           }
         }),
         catchError(() => {
@@ -72,43 +67,136 @@ export class AuthService {
       .subscribe();
   }
 
-  // Get current user
+  // Get the current user
   getCurrentUser(): User | null {
     return this.currentUserSubject.value;
   }
 
-  // Check if user is authenticated
+  // Return true if authenticated
   isAuthenticated(): boolean {
-    return !!this.currentUserSubject.value;
+    return !!this.getCurrentUser();
   }
 
-  // Refresh user token (if implemented on backend)
-  refreshToken(): Observable<User | null> {
-    return this.http.post<User>(`${this.apiUrl}/auth/refresh-token`, {}).pipe(
-      tap(user => {
-        if (user) {
-          this.currentUserSubject.next(user);
-        }
-      }),
-      catchError(this.handleError<User | null>("refreshToken"))
+  // Return an observable for authentication status
+  getAuthStatus(): Observable<boolean> {
+    return this.currentUser$.pipe(
+      tap(user => console.log("Auth status checked:", !!user)),
+      map(user => !!user)
     );
   }
-
-  // Error handling method
-  private handleError<T>(operation = "operation", result?: T) {
-    return (error: any): Observable<T> => {
-      // Log error to console
-      console.error(`${operation} failed: ${error.message}`);
-
-      // Optionally dispatch to error tracking service
-
-      // Return a safe result
-      return of(result as T);
-    };
-  }
-
-  // Get authentication status as observable
-  getAuthStatus(): Observable<boolean> {
-    return this.currentUser$.pipe(map(user => !!user));
-  }
 }
+
+// // src/app/services/auth.service.ts
+// import { Injectable } from "@angular/core";
+// import { HttpClient } from "@angular/common/http";
+// import { BehaviorSubject, Observable, of, throwError } from "rxjs";
+// import { catchError, map, tap } from "rxjs/operators";
+// import { environment } from "../../environments/environment";
+
+// // User interface for type safety
+// export interface User {
+//   id: string;
+//   name: string;
+//   email: string;
+//   accessToken?: string;
+// }
+
+// @Injectable({
+//   providedIn: "root"
+// })
+// export class AuthService {
+//   // BehaviorSubject to track current user state
+//   private currentUserSubject = new BehaviorSubject<User | null>(null);
+
+//   // Observable for components to subscribe to user state
+//   currentUser$ = this.currentUserSubject.asObservable();
+
+//   // Base API URL from environment
+//   private apiUrl = environment.apiUrl;
+
+//   constructor(private http: HttpClient) {
+//     // Check if user is already authenticated on service initialization
+//     this.checkAuthentication();
+//   }
+
+//   // Login method (redirects to Google OAuth)
+//   login(): void {
+//     // Redirect to backend Google OAuth endpoint
+//     window.location.href = `${this.apiUrl}/auth/google`;
+//   }
+
+//   // Logout method
+//   logout(): Observable<any> {
+//     return this.http.get(`${this.apiUrl}/api/user/logout`).pipe(
+//       tap(() => {
+//         console.log("api logout calling")
+//         // Clear user on successful logout
+//         this.currentUserSubject.next(null);
+//         // Redirect to login page
+//         window.location.href = '/login';
+//       }),
+//       catchError(this.handleError<any>('logout'))
+//     );
+//   }
+//   // logout(): Observable<any> {
+//   //   return this.http.get(`${this.apiUrl}/api/user/logout`);
+//   // }
+
+//   // Check authentication status
+//   checkAuthentication(): void {
+//     this.http
+//       .get<User>(`${this.apiUrl}/api/user`)
+//       .pipe(
+//         tap(user => {
+//           if (user) {
+//             this.currentUserSubject.next(user);
+//           }
+//         }),
+//         catchError(() => {
+//           this.currentUserSubject.next(null);
+//           return of(null);
+//         })
+//       )
+//       .subscribe();
+//   }
+
+//   // Get current user
+//   getCurrentUser(): User | null {
+//     return this.currentUserSubject.value;
+//   }
+
+//   // Check if user is authenticated
+//   isAuthenticated(): boolean {
+//     return !!this.currentUserSubject.value;
+//   }
+
+//   // Refresh user token (if implemented on backend)
+//   refreshToken(): Observable<User | null> {
+//     return this.http.post<User>(`${this.apiUrl}/auth/refresh-token`, {}).pipe(
+//       tap(user => {
+//         if (user) {
+//           this.currentUserSubject.next(user);
+//         }
+//       }),
+//       catchError(this.handleError<User | null>("refreshToken"))
+//     );
+//   }
+
+//   // Error handling method
+//   private handleError<T>(operation = "operation", result?: T) {
+//     return (error: any): Observable<T> => {
+//       // Log error to console
+//       console.error(`${operation} failed: ${error.message}`);
+
+//       // Optionally dispatch to error tracking service
+
+//       // Return a safe result
+//       return of(result as T);
+//     };
+//   }
+
+//   // Get authentication status as observable
+//   getAuthStatus(): Observable<boolean> {
+//     return this.currentUser$.pipe(map(user => !!user));
+//   }
+// }

@@ -15,8 +15,14 @@ export class LoginComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.authService.currentUser$.subscribe(user => {
-      if (user) {
+    // this.authService.currentUser$.subscribe(user => {
+    //   if (user) {
+    //     this.router.navigate(['/dashboard']);
+    //   }
+    // });
+    this.authService.getAuthStatus().subscribe(isAuthenticated => {
+      if (isAuthenticated) {
+        console.log('Redirecting to dashboard');
         this.router.navigate(['/dashboard']);
       }
     });

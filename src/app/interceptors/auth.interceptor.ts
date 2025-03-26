@@ -14,7 +14,7 @@ export class AuthInterceptor implements HttpInterceptor {
     request: HttpRequest<unknown>,
     next: HttpHandler
   ): Observable<HttpEvent<unknown>> {
-    // Add any necessary authentication headers
+    // Ensure cookies are sent with requests
     const modifiedRequest = request.clone({
       withCredentials: true
     });
