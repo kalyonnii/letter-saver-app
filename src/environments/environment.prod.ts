@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://lettersaverappbackend-dsgdzam3v-kalyonniis-projects.vercel.app'
+  apiUrl: 'https://lettersaverapp-backend-de5zvizva-kalyonniis-projects.vercel.app'
 };
