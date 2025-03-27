@@ -11,6 +11,7 @@ import { DashboardComponent } from "./components/dashboard/dashboard.component";
 import { AuthInterceptor } from "./interceptors/auth.interceptor";
 import { AuthGuard } from "./guards/auth.guard";
 import { ViewletterComponent } from './components/viewletter/viewletter.component';
+import { HashLocationStrategy, LocationStrategy } from "@angular/common";
 // import { CKEditorModule } from "@ckeditor/ckeditor5-angular";
 @NgModule({
   declarations: [
@@ -34,7 +35,8 @@ import { ViewletterComponent } from './components/viewletter/viewletter.componen
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
       multi: true
-    }
+    },
+    { provide: LocationStrategy, useClass: HashLocationStrategy },
   ],
   bootstrap: [AppComponent]
 })
