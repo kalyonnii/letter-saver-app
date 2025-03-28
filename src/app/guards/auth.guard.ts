@@ -52,11 +52,19 @@ export class AuthGuard implements CanActivate {
     state: RouterStateSnapshot
   ): Observable<boolean> {
     return this.authService.checkAuthentication().pipe(
+      map(user => {
+        const isAuthenticated = !!user; // Check if user exists
+        console.log('AuthGuard - isAuthenticated:', isAuthenticated);
+        return isAuthenticated;
+      }),
       tap(isAuthenticated => {
-        console.log("AuthGuard - isAuthenticated:", isAuthenticated);
         if (!isAuthenticated) {
-          this.router.navigate(["/login"]);
+          this.router.navigate(['/login']);
         }
+      }),
+      catchError(() => {
+        this.router.navigate(['/login']);
+        return of(false);
       })
     );
   }

@@ -11,7 +11,7 @@ export class AppComponent implements OnInit{
   constructor(private authService:AuthService){}
 
   ngOnInit(): void {
-    this.authService.checkAuthentication().subscribe();
+    this.authService.checkAuthentication();
     console.log('Current User:', this.authService.getCurrentUser());
   }
 
