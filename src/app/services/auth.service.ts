@@ -47,25 +47,45 @@ export class AuthService {
   }
 
   // Check if the user is authenticated (on app load)
-  checkAuthentication(): void {
-    this.http
-      .get<User>(`${this.apiUrl}/api/user`)
-      .pipe(
-        tap(user => {
-          if (user) {
-            console.log("Authenticated User:", user);
-            this.currentUserSubject.next(user);
-          } else {
-            this.currentUserSubject.next(null);
-          }
-        }),
-        catchError(() => {
-          this.currentUserSubject.next(null);
-          return of(null);
-        })
-      )
-      .subscribe();
-  }
+  // checkAuthentication(): void {
+  //   this.http
+  //     .get<User>(`${this.apiUrl}/api/user`)
+  //     .pipe(
+  //       tap(user => {
+  //         if (user) {
+  //           console.log("Authenticated User:", user);
+  //           this.currentUserSubject.next(user);
+  //         } else {
+  //           this.currentUserSubject.next(null);
+  //         }
+  //       }),
+  //       catchError(() => {
+  //         this.currentUserSubject.next(null);
+  //         return of(null);
+  //       })
+  //     )
+  //     .subscribe();
+  // }
+
+
+  // services/auth.service.ts
+checkAuthentication(): Observable<boolean> {
+  return this.http.get<User>(`${this.apiUrl}/api/user`).pipe(
+    tap(user => {
+      if (user) {
+        console.log('Authenticated User:', user);
+        this.currentUserSubject.next(user);
+      } else {
+        this.currentUserSubject.next(null);
+      }
+    }),
+    map(user => !!user),
+    catchError(() => {
+      this.currentUserSubject.next(null);
+      return of(false);
+    })
+  );
+}
 
   // Get the current user
   getCurrentUser(): User | null {
