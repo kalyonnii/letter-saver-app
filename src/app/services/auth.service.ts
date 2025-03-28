@@ -33,7 +33,7 @@ export class AuthService {
 
   // Logout and clear user session
   logout(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/api/user/logout`).pipe(
+    return this.http.get(`${this.apiUrl}/api/user/logout`,{ withCredentials: true }).pipe(
       tap(() => {
         console.log("Logging out user");
         this.currentUserSubject.next(null);
