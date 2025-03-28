@@ -1,7 +1,7 @@
 // services/auth.service.ts
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { BehaviorSubject, Observable, of } from "rxjs";
+import { BehaviorSubject, Observable, of, ReplaySubject } from "rxjs";
 import { catchError, map, tap } from "rxjs/operators";
 import { environment } from "../../environments/environment";
 
@@ -18,7 +18,7 @@ export interface User {
 export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   currentUser$ = this.currentUserSubject.asObservable();
-
+  private isAuthenticated$ = new ReplaySubject<boolean>(1);
   private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {
@@ -68,33 +68,41 @@ export class AuthService {
   // }
 
 
-  // services/auth.service.ts
-checkAuthentication(): Observable<boolean> {
-  return this.http.get<User>(`${this.apiUrl}/api/user`).pipe(
-    tap(user => {
-      if (user) {
-        console.log('Authenticated User:', user);
-        this.currentUserSubject.next(user);
-      } else {
-        this.currentUserSubject.next(null);
-      }
-    }),
-    map(user => !!user),
-    catchError(() => {
-      this.currentUserSubject.next(null);
-      return of(false);
-    })
-  );
-}
+  checkAuthentication(): Observable<boolean> {
+    return this.http
+      .get<User>(`${this.apiUrl}/api/user`, { withCredentials: true })
+      .pipe(
+        map(user => {
+          if (user) {
+            console.log("Authenticated User:", user);
+            this.currentUserSubject.next(user);
+            return true; // User is authenticated
+          } else {
+            console.log("No user found");
+            this.currentUserSubject.next(null);
+            return false; // Not authenticated
+          }
+        }),
+        catchError(err => {
+          console.error("Error checking auth:", err);
+          this.currentUserSubject.next(null);
+          return of(false); // Return false on error
+        })
+      );
+  }
 
   // Get the current user
   getCurrentUser(): User | null {
     return this.currentUserSubject.value;
   }
 
-  // Return true if authenticated
-  isAuthenticated(): boolean {
-    return !!this.getCurrentUser();
+  // // Return true if authenticated
+  // isAuthenticated(): boolean {
+  //   return !!this.getCurrentUser();
+  // }
+
+  isAuthenticated(): Observable<boolean> {
+    return this.isAuthenticated$.asObservable();
   }
 
   // Return an observable for authentication status
