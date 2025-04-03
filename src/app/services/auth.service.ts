@@ -155,7 +155,7 @@ export class AuthService {
 
   // Logout method
   logout(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/api/user/logout`).pipe(
+    return this.http.get(`${this.apiUrl}/api/user/logout`,{ withCredentials: true }).pipe(
       tap(() => {
         console.log("api logout calling")
         // Clear user on successful logout
@@ -173,7 +173,7 @@ export class AuthService {
   // Check authentication status
   checkAuthentication(): void {
     this.http
-      .get<User>(`${this.apiUrl}/api/user`)
+      .get<User>(`${this.apiUrl}/api/user`,{ withCredentials: true })
       .pipe(
         tap(user => {
           if (user) {
@@ -200,7 +200,7 @@ export class AuthService {
 
   // Refresh user token (if implemented on backend)
   refreshToken(): Observable<User | null> {
-    return this.http.post<User>(`${this.apiUrl}/auth/refresh-token`, {}).pipe(
+    return this.http.post<User>(`${this.apiUrl}/auth/refresh-token`,{ withCredentials: true }).pipe(
       tap(user => {
         if (user) {
           this.currentUserSubject.next(user);
